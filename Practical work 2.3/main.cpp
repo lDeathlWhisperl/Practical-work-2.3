@@ -1,80 +1,98 @@
 ﻿#include <iostream>
+#include <string>
+#include <algorithm>
+#include "Stack.h"
 
-struct Node
+int getOperationWeight(char operation)
 {
-    int data{};
-    Node* next{};
-};
-
-class Stack
-{
-    int size;
-    Node* curr, *base;
-public:
-    Stack() : size(0), curr(NULL), base(NULL) {}
-
-    int getSize()
+    switch (operation)
     {
-        return size;
-    }
-    //del
-    int getBase()
-    {
-        if(base)
-            return *reinterpret_cast<int*>(base);
+    case '+':
+    case '-':
+        return 1;
+    case '*':
+    case '/':
+        return 2;
+    case '(':
+    case ')':
+        return 0;
+    default:
         return -1;
     }
+}
 
-    void push(int num)
-    {
-        Node* temp = new Node;
-        temp->data = num;
-        if(curr)
-        {
-            curr->next = temp;
-            curr = curr->next;
-        }
-        else
-        {
-            curr = temp;
-            base = temp;
-        }
-        size++;
-    }
-
-    int pop()
-    {
-        if(base)
-        {
-            curr = base;
-            for (int i = 1; i < size; i++)
-                curr = curr->next;
-
-            int res = *reinterpret_cast<int*>(curr);
-            delete curr;
-            size--;
-
-            if (!size)
-                curr = base = NULL;
-        
-            return res;
-        }
-        std::cout << "\x1b[31m[STACK IS EMPTY]\x1b[0m ";
-        return NULL;
-    }
-};
+void deleteChar(std::string &str, char ch)
+{
+    str.erase(std::remove(str.begin(), str.end(), ch), str.end());
+}
 
 int main()
 {
     Stack st;
+    int size;
 
-    int size = 25;
+    std::string str, res = "";
+    getline(std::cin, str);
 
-    for (int i = 1; i <= size; i++)
-        st.push(i);
-    
+    deleteChar(str, ' ');
+
+    for (unsigned int i = 0; i < str.length(); i++)
+    {
+        size = st.getSize();
+        switch(getOperationWeight(str[i]))
+        {
+        case 1:
+            if(getOperationWeight(st.read()) == 1)
+                res += st.pop();
+            if(getOperationWeight(st.read()) == 2)
+                while (st.getSize())
+                {
+                    res += st.pop();
+                    res += ' ';
+                }
+            st.push(str[i]);
+            break;
+
+        case 2:
+            if (getOperationWeight(st.read()) == 2)
+                res += st.pop();
+            st.push(str[i]);
+            break;
+
+        case 0:
+            if (str[i] == ')')
+                while (st.getSize())
+                {
+                    if (st.read() == '(')
+                    {
+                        st.pop();
+                        continue;
+                    }
+                    res += st.pop();
+                    res += ' ';
+                }
+            else 
+                st.push(str[i]);
+            break;
+
+        case -1:
+            res += str[i];
+            if(getOperationWeight(str[i+1]) > -1)
+                res += ' ';
+        }
+    }
+
+    res += ' ';
+    res += st.pop();
+
+    std::cout << res << "\n\n\n";
+
+
+
+
     std::cout << "\nsize: " << st.getSize() << "\nbase: " << st.getBase() << "\n\n";
 
+    size = st.getSize();
     for (int i = 1; i <= size; i++)
         std::cout << st.pop() << ' ';
 
