@@ -23,4 +23,6 @@ public:
     char pop();
 
     char read();
+
+    std::string readAll();
 };

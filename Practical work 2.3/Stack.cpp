@@ -63,3 +63,22 @@ char Stack::read()
     }
     return NULL;
 }
+
+std::string Stack::readAll()
+{
+    std::string res;
+    if (base)
+    {
+        curr = base;
+        int temp = size;
+        for (int i = 1; i < temp; i++)
+        {
+            res += curr->data;
+            res += ',';
+            curr = curr->next;
+        }
+        res += read();
+        return res;
+    }
+    return "\0";
+}
