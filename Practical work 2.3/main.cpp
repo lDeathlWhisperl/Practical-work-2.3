@@ -2,8 +2,10 @@
 #include <string>
 #include <algorithm>
 #include <iomanip>
+#include <conio.h>
 #include "Stack.h"
 //15*(3-4)/5+1
+// a*(b-c)/d+e
 int getOperationWeight(char operation)
 {
     switch (operation)
@@ -27,9 +29,94 @@ void deleteChar(std::string &str, char ch)
     str.erase(std::remove(str.begin(), str.end(), ch), str.end());
 }
 
+bool isMistake(std::string str)
+{
+    int size = str.length();
+    int brackets = 0;
+
+    if (size < 0)
+        return true;
+
+    //if the first or the most recent character is an operation
+    if (getOperationWeight(str[0]) >= 1 || getOperationWeight(str[size - 1]) >= 1)
+        return true;
+
+    for (int i = 0; i < size; i++)
+    {
+        //all characters except +,-,*,/
+        if (!isalnum(str[i]) && getOperationWeight(str[i]) < 0)
+            return true;
+
+        //if two variables are neighbours
+        if (isalpha(str[i]) && isalpha(str[i + 1]))
+            return true;
+
+        //if a number or variable is followed by '('
+        if (isalnum(str[i]) && str[i + 1] == '(')
+            return true;
+
+        //if '(' is followed by an operation 
+        if (str[i] == '(' && getOperationWeight(str[i + 1]) >= 0)
+            return true;
+
+        //if an operation is followed by ')'
+        if (getOperationWeight(str[i]) >= 0 && str[i + 1] == ')')
+            return true;
+
+        //if '(' is followed by number or variable
+        if (str[i] == ')' && isalnum(str[i + 1]))
+            return true;
+
+        //if two operations are neighbours
+        if (getOperationWeight(str[i]) >= 1 && getOperationWeight(str[i + 1]) >= 1)
+            return true;
+
+        if (str[i] == '(')
+            brackets++;
+        if (str[i] == ')')
+            brackets--;
+
+        //if the first bracket is the closing one
+        if (brackets < 0)
+            return true;
+    }
+    //checking an even bracket count
+    if (brackets)
+        return true;
+
+    return false;
+}
+
+void varInit(std::string &str)
+{
+    int num = NULL;
+    std::string res;
+    for (unsigned int i = 0; i < str.length(); i++)
+    {
+        while (isalpha(str[i]))
+        {
+            std::cout << "Please init the variable " << str[i] << " = ";
+            std::cin >> num;
+            if (num != NULL)
+                break;
+            if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(32767, '\n');
+            }
+        }
+        if (num != NULL)
+            res += std::to_string(num);
+        else
+            res += str[i];
+        num = NULL;
+    }
+ 
+    str = res;
+}
+
 void reverse(std::string str, std::string res, Stack st)
 {
-    deleteChar(str, ' ');
+    system("cls");
 
     std::cout << 
         "+==========+===============+=============================+\n"
@@ -106,32 +193,22 @@ void reverse(std::string str, std::string res, Stack st)
         res += st.pop();
     }
 
-    std::cout << res << "\n\n\n";
+    std::cout << res << "\n\n\nThe initial expression: " << str << "\nThe reverse polish notation: " << res << '\n';
 }
 
 int main()
 {
     Stack st;
-    int size;
 
     std::string str, res = "";
     getline(std::cin, str);
-
-    reverse(str, res, st);
-    /*
-    for (int i = 1; i <= 5; i++)
-        st.push(i);
-
-
-    std::cout << "\nsize: " << st.getSize() << "\nbase: " << st.getBase() << "\n\n";
-
-
-    std::cout << st.readAll() << '\n';
-
-    size = st.getSize();
-    for (int i = 1; i <= size; i++)
-        std::cout << st.pop() << ' ';
-
-    std::cout << "\n\nsize: " << st.getSize() << "\nbase: " << st.getBase() << '\n';
-    */
+    deleteChar(str, ' ');
+    
+    if (!isMistake(str))
+    {
+        varInit(str);
+        reverse(str, res, st);
+    }
+    else
+        std::cout << "you entered the wrong expression";
 }
