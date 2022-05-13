@@ -1,28 +1,33 @@
 #pragma once
 #include <iostream>
+#include <string>
 
+template <typename T>
 struct Node
 {
-    char data{};
+    T data{};
     Node* next{};
 };
 
+template <typename T>
 class Stack
 {
     int size;
-    Node* curr, * base;
+    Node<T>* curr, * base;
 public:
     Stack() : size(0), curr(NULL), base(NULL) {}
 
     int getSize();
     //del
-    char getBase();
+    T getBase();
 
-    void push(char num);
+    void push(T);
 
-    char pop();
+    T pop();
 
-    char read();
+    T read();
 
     std::string readAll();
+
+    std::string readAll_int();
 };

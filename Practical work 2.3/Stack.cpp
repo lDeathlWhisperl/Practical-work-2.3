@@ -1,22 +1,26 @@
 #include "Stack.h"
 #include <iostream>
+#include <string>
 
-int Stack::getSize()
+template <typename T>
+int Stack<T>::getSize()
 {
     return size;
 }
 
 //del
-char Stack::getBase()
+template <typename T>
+T Stack<T>::getBase()
 {
     if (base)
         return base->data;
     return -1;
 }
 
-void Stack::push(char num)
+template <typename T>
+void Stack<T>::push(T num)
 {
-    Node* temp = new Node;
+    Node<T>* temp = new Node<T>;
     temp->data = num;
     if (curr)
     {
@@ -31,7 +35,8 @@ void Stack::push(char num)
     size++;
 }
 
-char Stack::pop()
+template <typename T>
+T Stack<T>::pop()
 {
     if (base)
     {
@@ -51,7 +56,8 @@ char Stack::pop()
     return NULL;
 }
 
-char Stack::read()
+template <typename T>
+T Stack<T>::read()
 {
     if (base)
     {
@@ -64,7 +70,8 @@ char Stack::read()
     return NULL;
 }
 
-std::string Stack::readAll()
+template <typename T>
+std::string Stack<T>::readAll()
 {
     std::string res;
     if (base)
@@ -77,7 +84,27 @@ std::string Stack::readAll()
             res += ',';
             curr = curr->next;
         }
-        res += read();
+        //res += curr->data;
+        return res;
+    }
+    return "\0";
+}
+
+template<class T>
+std::string Stack<T>::readAll_int()
+{
+    std::string res;
+    if (base)
+    {
+        curr = base;
+        int temp = size;
+        for (int i = 1; i < temp; i++)
+        {
+            res += std::to_string(curr->data);
+            res += ',';
+            curr = curr->next;
+        }
+        res += std::to_string(curr->data);
         return res;
     }
     return "\0";
