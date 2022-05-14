@@ -84,7 +84,7 @@ std::string Stack<T>::readAll()
             res += ',';
             curr = curr->next;
         }
-        //res += curr->data;
+        res += curr->data;
         return res;
     }
     return "\0";
