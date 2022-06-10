@@ -2,4 +2,4 @@
 
 void mainMenu();
 
-int solveExpression(std::string str);
+//int solveExpression(std::string str);

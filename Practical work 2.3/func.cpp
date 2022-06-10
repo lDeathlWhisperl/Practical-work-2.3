@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <conio.h>
-#include "Stack.cpp"
+#include <stack>
 #include "func.h"
 
 int getOperationWeight(char operation)
@@ -34,9 +34,8 @@ int calc(int var_1, int var_2, char operation)
         return var_1 - var_2;
     case '*':
         return var_1 * var_2;
-    case '/':
-        return var_1 / var_2;
     }
+    return var_1 / var_2;
 }
 
 void deleteChar(std::string& str, char ch)
@@ -46,7 +45,8 @@ void deleteChar(std::string& str, char ch)
 
 void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
 {
-    Stack<char> st;
+    std::stack<char> st;
+    std::stack<char> st_copy;
 
     if (isDisplay) std::cout <<
         "+==========+===============+=============================+\n"
@@ -60,14 +60,16 @@ void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
         {
         case 1:
             num = "";
-            if (getOperationWeight(st.read()) == 1)
+            if (!st.empty() && getOperationWeight(st.top()) == 1)
             {
-                res += st.pop();
+                res += st.top();
+                st.pop();
                 res += ' ';
             }
-            while (getOperationWeight(st.read()) == 2)
+            while (!st.empty() && getOperationWeight(st.top()) == 2)
             {
-                res += st.pop();
+                res += st.top();
+                st.pop();
                 res += ' ';
             }
             st.push(str[i]);
@@ -75,26 +77,27 @@ void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
 
         case 2:
             num = "";
-            while (getOperationWeight(st.read()) == 2)
+            while (!st.empty() && getOperationWeight(st.top()) == 2)
             {
-                res += st.pop();
+                res += st.top();
+                st.pop();
                 res += ' ';
             }
-
             st.push(str[i]);
             break;
 
         case 0:
             num = "";
             if (str[i] == ')')
-                while (st.getSize())
+                while (st.size())
                 {
-                    if (st.read() == '(')
+                    if (st.top() == '(')
                     {
                         st.pop();
                         break;
                     }
-                    res += st.pop();
+                    res += st.top();
+                    st.pop();
                     res += ' ';
                 }
             else
@@ -107,13 +110,31 @@ void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
             if (getOperationWeight(str[i + 1]) > -1)
                 res += ' ';
         }
-
+        
+        st_copy = st;
         if (isDisplay)
             if (num.length() && (getOperationWeight(str[i + 1]) > -1 || i == str.length() - 1))
-                std::cout << "| " << std::left << std::setw(8) << num << " | " << std::setw(14) << st.readAll() << "| " << std::setw(28) << res << "|\n";
+            {
+                std::cout << "| " << std::left << std::setw(8) << num << " | ";// << std::setw(14);
+                while (!st_copy.empty())
+                {
+                    std::cout << st_copy.top() << ',';
+                    st_copy.pop();
+                }
+                std::cout << "| " << std::setw(28) << res << "|\n";
+            }
             else if (!num.length())
-                std::cout << "| " << std::left << std::setw(8) << str[i] << " | " << std::setw(14) << st.readAll() << "| " << std::setw(28) << res << "|\n";
-        system("pause");
+            {
+                std::cout << "| " << std::left << std::setw(8) << str[i] << " | ";// << std::setw(14);
+                while (!st_copy.empty())
+                {
+                    std::cout << st_copy.top() << ',';
+                    st_copy.pop();
+                }
+                std::cout << "| " << std::setw(28) << res << "|\n";
+
+            }
+        
     }
 
     if (isDisplay) std::cout <<
@@ -122,10 +143,11 @@ void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
     if (res[res.length() - 1] == ' ')
         res.pop_back();
 
-    while (st.getSize())
+    while (st.size())
     {
         res += ' ';
-        res += st.pop();
+        res += st.top();
+        st.pop();
     }
 
     if (isDisplay)
@@ -134,7 +156,7 @@ void toReverseNotation(std::string str, std::string& res, bool isDisplay = true)
 
 int solveExpression(std::string str)
 {
-    Stack<int> numbers;
+    std::stack<int> numbers;
     std::string expression, num;
 
     toReverseNotation(str, expression, false);
@@ -155,16 +177,16 @@ int solveExpression(std::string str)
 
         if (getOperationWeight(expression[i]) >= 1)
         {
-            int var_2 = numbers.pop();
-            int var_1 = numbers.pop();
-
-            numbers.readAll(); //function doesn't work without this. Why? idk
+            int var_2 = numbers.top();
+            numbers.pop();
+            int var_1 = numbers.top();
+            numbers.pop();
 
             int res = calc(var_1, var_2, expression[i]);
             numbers.push(res);
         }
     }
-    return numbers.pop();
+    return numbers.top();
 }
 
 bool isMistake(std::string str)
@@ -247,6 +269,7 @@ void varInit(std::string& str)
 void mainMenu()
 {
     std::string str, res = "";
+    std::cout << "Input an expression: ";
     getline(std::cin, str);
     deleteChar(str, ' ');
     
